@@ -9,10 +9,11 @@ import (
 
 type CassandraGenericRepository[T any] struct {
 	session *gocql.Session
+	dbName  string
 }
 
-func (c *CassandraGenericRepository[T]) Find(dbName, entity string, fieldValues map[string]interface{}, t T) (T, error) {
-	records, err := c.Get(dbName, entity, fieldValues, t)
+func (c *CassandraGenericRepository[T]) Find(entity string, fieldValues map[string]interface{}, t T) (T, error) {
+	records, err := c.Get(entity, fieldValues, t)
 	if err != nil {
 		return t, err
 	}
@@ -22,11 +23,11 @@ func (c *CassandraGenericRepository[T]) Find(dbName, entity string, fieldValues 
 	return records[(len(records) - 1)], nil
 }
 
-func (c *CassandraGenericRepository[T]) Get(DbName, entity string, fieldValues map[string]interface{}, t T) ([]T, error) {
-	return utils.FetchRecordWithConditions(c.session, DbName, entity, fieldValues, t, " ALLOW FILTERING ")
+func (c *CassandraGenericRepository[T]) Get(entity string, fieldValues map[string]interface{}, t T) ([]T, error) {
+	return utils.FetchRecordWithConditions(c.session, c.dbName, entity, fieldValues, t, " ALLOW FILTERING ")
 }
 
-func (c *CassandraGenericRepository[T]) Update(DbName, entity string, conditions, fieldValues map[string]interface{}, t T) error {
+func (c *CassandraGenericRepository[T]) Update(entity string, conditions, fieldValues map[string]interface{}, t T) error {
 	valuesWhere, err := utils.WhereClauseBuilder(conditions)
 	if err != nil {
 		return err
@@ -35,28 +36,29 @@ func (c *CassandraGenericRepository[T]) Update(DbName, entity string, conditions
 	if err != nil {
 		return err
 	}
-	query := fmt.Sprintf("UPDATE %s.%s SET %s  %s", DbName, entity, valuesToUpdate, valuesWhere)
+	query := fmt.Sprintf("UPDATE %s.%s SET %s  %s", c.dbName, entity, valuesToUpdate, valuesWhere)
 
 	return c.session.Query(query).Exec()
 }
 
-func (c *CassandraGenericRepository[T]) Delete(DbName, entity string, fieldValues map[string]interface{}, t T) error {
+func (c *CassandraGenericRepository[T]) Delete(entity string, fieldValues map[string]interface{}, t T) error {
 	valuesWhere, err := utils.WhereClauseBuilder(fieldValues)
 	if err != nil {
 		return err
 	}
-	query := fmt.Sprintf("DELETE FROM %s.%s  %s", DbName, entity, valuesWhere)
+	query := fmt.Sprintf("DELETE FROM %s.%s  %s", c.dbName, entity, valuesWhere)
 	return c.session.Query(query).Exec()
 }
 
-func NewCassandraGenericRepository[T any](session *gocql.Session, t T) *CassandraGenericRepository[T] {
+func NewCassandraGenericRepository[T any](session *gocql.Session, dbName string, t T) *CassandraGenericRepository[T] {
 	return &CassandraGenericRepository[T]{
 		session: session,
+		dbName:  dbName,
 	}
 }
-func (c *CassandraGenericRepository[T]) Save(DbName, entity string, record any, t T) error {
-	return utils.InsertRecord(c.session, DbName, entity, record)
+func (c *CassandraGenericRepository[T]) Save(entity string, record any, t T) error {
+	return utils.InsertRecord(c.session, c.dbName, entity, record)
 }
-func (c *CassandraGenericRepository[T]) SaveBulk(DbName, entity string, records []T, t T) error {
-	return utils.InsertBulkRecord(c.session, DbName, entity, records)
+func (c *CassandraGenericRepository[T]) SaveBulk(entity string, records []T, t T) error {
+	return utils.InsertBulkRecord(c.session, c.dbName, entity, records)
 }
