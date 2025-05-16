@@ -12,21 +12,21 @@ func NewGenericServiceImpl[T any](repo GenericRepository[T]) *GenericServiceImpl
 func (g *GenericServiceImpl[T]) SetDto(dto any) {
 	g.dto = dto
 }
-func (g *GenericServiceImpl[T]) Save(entity string, record any, t T) error {
-	return g.repo.Save(entity, record, t)
+func (g *GenericServiceImpl[T]) Save(dbName, entity string, record any, t T) error {
+	return g.repo.Save(dbName, entity, record, t)
 }
-func (g *GenericServiceImpl[T]) SaveBulk(entity string, record []T, t T) error {
-	return g.repo.SaveBulk(entity, record, t)
+func (g *GenericServiceImpl[T]) SaveBulk(dbName, entity string, record []T, t T) error {
+	return g.repo.SaveBulk(dbName, entity, record, t)
 }
-func (g *GenericServiceImpl[T]) Find(entity string, fieldValues map[string]interface{}, t T) (T, error) {
-	return g.repo.Find(entity, fieldValues, t)
+func (g *GenericServiceImpl[T]) Find(dbName, entity string, fieldValues map[string]interface{}, t T) (T, error) {
+	return g.repo.Find(dbName, entity, fieldValues, t)
 }
-func (g *GenericServiceImpl[T]) Get(entity string, fieldValues map[string]interface{}, t T) ([]T, error) {
-	return g.repo.Get(entity, fieldValues, t)
+func (g *GenericServiceImpl[T]) Get(dbName, entity string, fieldValues map[string]interface{}, t T) ([]T, error) {
+	return g.repo.Get(dbName, entity, fieldValues, t)
 }
-func (g *GenericServiceImpl[T]) Update(entity string, conditions, fieldValues map[string]interface{}, t T) error {
-	return g.repo.Update(entity, conditions, fieldValues, t)
+func (g *GenericServiceImpl[T]) Update(dbName, entity string, conditions, fieldValues map[string]interface{}, t T) error {
+	return g.repo.Update(dbName, entity, conditions, fieldValues, t)
 }
-func (g *GenericServiceImpl[T]) Delete(entity string, fieldValues map[string]interface{}, t T) error {
-	return g.repo.Delete(entity, fieldValues, t)
+func (g *GenericServiceImpl[T]) Delete(dbName, entity string, fieldValues map[string]interface{}, t T) error {
+	return g.repo.Delete(dbName, entity, fieldValues, t)
 }
