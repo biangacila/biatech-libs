@@ -3,7 +3,7 @@ package domaindriven
 import (
 	"errors"
 	"fmt"
-	"github.com/biangacila/luvungula-go/utils"
+	"github.com/biangacila/biatech-libs/utils"
 	"github.com/gocql/gocql"
 )
 
@@ -49,9 +49,9 @@ func (c *CassandraGenericRepository[T]) Delete(DbName, entity string, fieldValue
 	return c.session.Query(query).Exec()
 }
 
-func NewCassandraGenericRepository[T any](t T) *CassandraGenericRepository[T] {
+func NewCassandraGenericRepository[T any](session *gocql.Session, t T) *CassandraGenericRepository[T] {
 	return &CassandraGenericRepository[T]{
-		session: utils.GetSession(),
+		session: session,
 	}
 }
 func (c *CassandraGenericRepository[T]) Save(DbName, entity string, record any, t T) error {
