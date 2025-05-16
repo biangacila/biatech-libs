@@ -2,31 +2,32 @@ package domaindriven
 
 // GenericServiceImpl is the concrete implementation of the GenericService interface
 type GenericServiceImpl[T any] struct {
-	repo GenericRepository[T]
-	dto  any
+	repo   GenericRepository[T]
+	dto    any
+	dbName string
 }
 
-func NewGenericServiceImpl[T any](repo GenericRepository[T]) *GenericServiceImpl[T] {
-	return &GenericServiceImpl[T]{repo: repo}
+func NewGenericServiceImpl[T any](dbName string, repo GenericRepository[T]) *GenericServiceImpl[T] {
+	return &GenericServiceImpl[T]{repo: repo, dbName: dbName}
 }
 func (g *GenericServiceImpl[T]) SetDto(dto any) {
 	g.dto = dto
 }
-func (g *GenericServiceImpl[T]) Save(dbName, entity string, record any, t T) error {
-	return g.repo.Save(dbName, entity, record, t)
+func (g *GenericServiceImpl[T]) Save(entity string, record any, t T) error {
+	return g.repo.Save(g.dbName, entity, record, t)
 }
-func (g *GenericServiceImpl[T]) SaveBulk(dbName, entity string, record []T, t T) error {
-	return g.repo.SaveBulk(dbName, entity, record, t)
+func (g *GenericServiceImpl[T]) SaveBulk(entity string, record []T, t T) error {
+	return g.repo.SaveBulk(g.dbName, entity, record, t)
 }
-func (g *GenericServiceImpl[T]) Find(dbName, entity string, fieldValues map[string]interface{}, t T) (T, error) {
-	return g.repo.Find(dbName, entity, fieldValues, t)
+func (g *GenericServiceImpl[T]) Find(entity string, fieldValues map[string]interface{}, t T) (T, error) {
+	return g.repo.Find(g.dbName, entity, fieldValues, t)
 }
-func (g *GenericServiceImpl[T]) Get(dbName, entity string, fieldValues map[string]interface{}, t T) ([]T, error) {
-	return g.repo.Get(dbName, entity, fieldValues, t)
+func (g *GenericServiceImpl[T]) Get(entity string, fieldValues map[string]interface{}, t T) ([]T, error) {
+	return g.repo.Get(g.dbName, entity, fieldValues, t)
 }
-func (g *GenericServiceImpl[T]) Update(dbName, entity string, conditions, fieldValues map[string]interface{}, t T) error {
-	return g.repo.Update(dbName, entity, conditions, fieldValues, t)
+func (g *GenericServiceImpl[T]) Update(entity string, conditions, fieldValues map[string]interface{}, t T) error {
+	return g.repo.Update(g.dbName, entity, conditions, fieldValues, t)
 }
-func (g *GenericServiceImpl[T]) Delete(dbName, entity string, fieldValues map[string]interface{}, t T) error {
-	return g.repo.Delete(dbName, entity, fieldValues, t)
+func (g *GenericServiceImpl[T]) Delete(entity string, fieldValues map[string]interface{}, t T) error {
+	return g.repo.Delete(g.dbName, entity, fieldValues, t)
 }
