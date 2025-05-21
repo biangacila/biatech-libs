@@ -206,27 +206,52 @@ func WhereClauseBuilder(conditions map[string]interface{}) (string, error) {
 	return qry, nil
 }
 func UpdateClauseBuilder(conditions map[string]interface{}) (string, error) {
-	qry := ""
 	if conditions == nil {
-		return qry, errors.New("update conditions is nil")
+		return "", errors.New("update conditions is nil")
 	}
 	if len(conditions) == 0 {
-		return qry, errors.New("update conditions is empty")
+		return "", errors.New("update conditions is empty")
 	}
-	qry = qry + " "
+
+	var sb strings.Builder
+	sb.WriteString(" ")
+
 	for k, v := range conditions {
-		if _, ok := v.(string); ok {
-			qry = qry + fmt.Sprintf(" %s ='%v' ,", k, v)
-		} else if _, ok := v.(map[string]interface{}); ok {
-			st, _ := json.Marshal(v)
-			str := string(st)
-			str = strings.ReplaceAll(str, `"`, `'`)
-			qry = qry + fmt.Sprintf(" %s = %v ,", k, str)
-		} else {
-			qry = qry + fmt.Sprintf(" %s =%v ,", k, v)
+		switch val := v.(type) {
+
+		case string:
+			sb.WriteString(fmt.Sprintf("%s = '%s', ", k, val))
+
+		case map[string]interface{}:
+			// build a UDT literal: {field1:val1,field2:'val2',...}
+			innerKeys := make([]string, 0, len(val))
+			for ik := range val {
+				innerKeys = append(innerKeys, ik)
+			}
+			sort.Strings(innerKeys)
+
+			parts := make([]string, 0, len(innerKeys))
+			for _, ik := range innerKeys {
+				iv := val[ik]
+				switch s := iv.(type) {
+				case string:
+					// wrap string in single quotes
+					parts = append(parts, fmt.Sprintf("%s:'%s'", ik, s))
+				default:
+					// numbers, booleans, etc.
+					parts = append(parts, fmt.Sprintf("%s:%v", ik, s))
+				}
+			}
+
+			udt := "{" + strings.Join(parts, ",") + "}"
+			sb.WriteString(fmt.Sprintf("%s = %s, ", k, udt))
+
+		default:
+			sb.WriteString(fmt.Sprintf("%s = %v, ", k, val))
 		}
 	}
-	qry = strings.TrimSuffix(qry, ",")
+
+	qry := strings.TrimSuffix(sb.String(), ", ")
 	fmt.Println("Update query -:) ", qry)
 	return qry, nil
 }
