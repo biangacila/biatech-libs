@@ -225,5 +225,6 @@ func UpdateClauseBuilder(conditions map[string]interface{}) (string, error) {
 		}
 	}
 	qry = strings.TrimSuffix(qry, ",")
+	fmt.Println("Update query -:) ", qry)
 	return qry, nil
 }
