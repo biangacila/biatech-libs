@@ -219,7 +219,7 @@ func UpdateClauseBuilder(conditions map[string]interface{}) (string, error) {
 			qry = qry + fmt.Sprintf(" %s ='%v' ,", k, v)
 		} else if _, ok := v.(map[string]interface{}); ok {
 			st, _ := json.Marshal(v)
-			qry = qry + fmt.Sprintf(" %s = JSON '%v' ,", k, string(st))
+			qry = qry + fmt.Sprintf(" %s = %v ,", k, string(st))
 		} else {
 			qry = qry + fmt.Sprintf(" %s =%v ,", k, v)
 		}
