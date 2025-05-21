@@ -38,6 +38,10 @@ func (c *CassandraGenericRepository[T]) Update(entity string, conditions, fieldV
 	}
 	query := fmt.Sprintf("UPDATE %s.%s SET %s  %s", c.dbName, entity, valuesToUpdate, valuesWhere)
 
+	err = c.session.Query(query).Exec()
+	if err != nil {
+		return errors.New(fmt.Sprintf("error updating record: %v  -> %v", err.Error(), query))
+	}
 	return c.session.Query(query).Exec()
 }
 
